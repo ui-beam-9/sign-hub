@@ -1,12 +1,10 @@
 # 实际配置文件, 含 token / sign 等敏感信息, 不要提交
-# (config.example.json 是示例模板, 需要提交, 不要加进忽略)
 config.json
 
-# 设计/开发文档 (不提交, 仅本地保留)
+# 开发记录 (不提交, 仅本地保留)
 agents_chat/
 tasks.md
-README.md
-*.md
+.workbuddy/
 
 # Python
 __pycache__/
