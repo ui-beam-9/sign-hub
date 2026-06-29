@@ -51,7 +51,7 @@ CityBox (CITYBOX 魔盒) 是微信小程序, 登录态完全靠 HTTP 请求头�
 通用 webhook:
     python sign.py --config config.json --webhook https://your.webhook/url
     # 或
-    set WEBHOOK_URL=https://your.webhook/url
+    set SIGNHUB_WEBHOOK_URL=https://your.webhook/url
     python sign.py --config config.json
 
 PushPlus 一对多群组推送 (参考 https://pushplus.plus/doc/guide/api.html):
@@ -65,9 +65,9 @@ PushPlus 一对多群组推送 (参考 https://pushplus.plus/doc/guide/api.html)
     python sign.py --config config.json --pp-token <token> --pp-topic <群组编码> --pp-template markdown
 
     # 也可以全部用环境变量 (适合 cron / Docker)
-    set PUSHPLUS_TOKEN=<token>
-    set PUSHPLUS_TOPIC=<群组编码>
-    set PUSHPLUS_TEMPLATE=markdown
+    set SIGNHUB_PUSHPLUS_TOKEN=<token>
+    set SIGNHUB_PUSHPLUS_TOPIC=<群组编码>
+    set SIGNHUB_PUSHPLUS_TEMPLATE=markdown
     python sign.py --config config.json
 
 ================================================================
@@ -508,23 +508,23 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--sign", help="单账号 sign (命令行直传)")
     parser.add_argument(
         "--webhook",
-        default=os.environ.get("WEBHOOK_URL"),
-        help="可选通知 webhook (POST JSON {text:...}); 环境变量 WEBHOOK_URL",
+        default=os.environ.get("SIGNHUB_WEBHOOK_URL"),
+        help="可选通知 webhook (POST JSON {text:...}); 环境变量 SIGNHUB_WEBHOOK_URL",
     )
     parser.add_argument(
         "--pp-token",
-        default=os.environ.get("PUSHPLUS_TOKEN"),
-        help="PushPlus token (一对多推送); 环境变量 PUSHPLUS_TOKEN; 参考 https://pushplus.plus/doc/guide/api.html",
+        default=os.environ.get("SIGNHUB_PUSHPLUS_TOKEN"),
+        help="PushPlus token (一对多推送); 环境变量 SIGNHUB_PUSHPLUS_TOKEN; 参考 https://pushplus.plus/doc/guide/api.html",
     )
     parser.add_argument(
         "--pp-topic",
-        default=os.environ.get("PUSHPLUS_TOPIC"),
-        help="PushPlus 群组编码, 不填仅发给自己; 填则发给该群组所有成员; 环境变量 PUSHPLUS_TOPIC",
+        default=os.environ.get("SIGNHUB_PUSHPLUS_TOPIC"),
+        help="PushPlus 群组编码, 不填仅发给自己; 填则发给该群组所有成员; 环境变量 SIGNHUB_PUSHPLUS_TOPIC",
     )
     parser.add_argument(
         "--pp-template",
-        default=os.environ.get("PUSHPLUS_TEMPLATE", "txt"),
-        help="PushPlus 模板: txt/html/markdown/json (默认 txt); 环境变量 PUSHPLUS_TEMPLATE",
+        default=os.environ.get("SIGNHUB_PUSHPLUS_TEMPLATE", "txt"),
+        help="PushPlus 模板: txt/html/markdown/json (默认 txt); 环境变量 SIGNHUB_PUSHPLUS_TEMPLATE",
     )
     parser.add_argument(
         "--no-verify-ssl",

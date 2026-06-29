@@ -102,7 +102,7 @@ python sign.py --config config.json --proxy http://127.0.0.1:8888 --no-verify-ss
 ```bash
 python sign.py --config config.json --webhook https://your.webhook/url
 # 或
-set WEBHOOK_URL=https://your.webhook/url
+set SIGNHUB_WEBHOOK_URL=https://your.webhook/url
 python sign.py --config config.json
 ```
 
@@ -123,9 +123,9 @@ python sign.py --config config.json --pp-token <token> --pp-topic <群组编码>
 python sign.py --config config.json --pp-token <token> --pp-topic <群组编码> --pp-template markdown
 
 # 也可以全部用环境变量 (适合 cron / Docker)
-set PUSHPLUS_TOKEN=<token>
-set PUSHPLUS_TOPIC=<群组编码>
-set PUSHPLUS_TEMPLATE=markdown
+set SIGNHUB_PUSHPLUS_TOKEN=<token>
+set SIGNHUB_PUSHPLUS_TOPIC=<群组编码>
+set SIGNHUB_PUSHPLUS_TEMPLATE=markdown
 python sign.py --config config.json
 ```
 
@@ -133,10 +133,10 @@ python sign.py --config config.json
 
 | 命令行选项 | 环境变量 | 默认 |
 |------|------|------|
-| `--webhook` | `WEBHOOK_URL` | 无 |
-| `--pp-token` | `PUSHPLUS_TOKEN` | 无 |
-| `--pp-topic` | `PUSHPLUS_TOPIC` | 无 (发给自己) |
-| `--pp-template` | `PUSHPLUS_TEMPLATE` | txt |
+| `--webhook` | `SIGNHUB_WEBHOOK_URL` | 无 |
+| `--pp-token` | `SIGNHUB_PUSHPLUS_TOKEN` | 无 |
+| `--pp-topic` | `SIGNHUB_PUSHPLUS_TOPIC` | 无 (发给自己) |
+| `--pp-template` | `SIGNHUB_PUSHPLUS_TEMPLATE` | txt |
 
 ## 定时运行 (cron 示例)
 
