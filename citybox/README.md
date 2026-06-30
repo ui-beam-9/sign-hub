@@ -138,6 +138,38 @@ python sign.py --config config.json
 | `--pp-topic` | `SIGNHUB_PUSHPLUS_TOPIC` | 无 (发给自己) |
 | `--pp-template` | `SIGNHUB_PUSHPLUS_TEMPLATE` | txt |
 
+## 青龙面板集成
+
+### 拉取仓库
+
+青龙面板 → 订阅管理 → 新建订阅, 或在容器内执行:
+
+```bash
+ql repo https://github.com/ui-beam-9/sign-hub.git "citybox" "" "" "main"
+```
+
+### 环境变量配置
+
+| 名称 | 必填 | 说明 |
+|------|------|------|
+| `CITYBOX_ACCOUNTS_TOKEN1` | 是 | 账号1的 token |
+| `CITYBOX_ACCOUNTS_SIGN1` | 否 | 账号1的 sign |
+| `CITYBOX_ACCOUNTS_REMARK1` | 否 | 账号1的备注 (默认 env1) |
+| `CITYBOX_ACCOUNTS_TOKEN2` | 否 | 账号2的 token (允许多账号, 序号可跳) |
+| `SIGNHUB_PUSHPLUS_TOKEN` | 否 | PushPlus token |
+| `SIGNHUB_PUSHPLUS_TOPIC` | 否 | PushPlus 群组编码 (不填发给自己) |
+| `SIGNHUB_PUSHPLUS_TEMPLATE` | 否 | PushPlus 模板 (默认 txt) |
+| `SIGNHUB_WEBHOOK_URL` | 否 | 通用 webhook URL |
+
+> 编号环境变量允许跳号, 例如只设 `TOKEN2` 不设 `TOKEN1` (用于临时禁用账号1), 脚本会扫描 1~100 收集所有存在的账号。
+> 可通过 `CITYBOX_ACCOUNTS_MAX_INDEX` 调整扫描上限 (默认 100)。
+
+### 定时任务
+
+青龙拉取后, 在定时任务中新建:
+- 命令: `task citybox/sign.py`
+- 定时规则: `39 11 * * *` (每天 11:39) 或按需调整
+
 ## 定时运行 (cron 示例)
 
 ```bash
@@ -146,6 +178,31 @@ python sign.py --config config.json
 ```
 
 Windows 计划任务可在 *任务计划程序* 中新建, 程序填 `python.exe`, 参数填 `sign.py --config config.json`, 起始位置填 `citybox` 目录。
+
+## 智能流程
+
+每个账号执行时按以下顺序判断:
+
+```
+1. 认证检测 (get_user_info)
+   ├─ 认证无效 (token/sign 失效) → 标记错误, 跳过签到抽奖, 仍发通知
+   └─ 认证有效 → 继续
+
+2. 签到 (up_sign)
+   ├─ 今日已签到 → 跳过抽奖, 继续下一个账号
+   └─ 签到成功 → 继续抽奖
+
+3. 抽奖 x2 (draw_results)
+   └─ 随机 click_num 1~9, 两次不重复
+
+4. 签到后积分查询
+```
+
+特点:
+- **认证失效自动跳过**: token/sign 过期不会浪费后续签到/抽奖请求, 但会通过通知告知"账户认证无效"
+- **已签到自动跳过抽奖**: 避免重复请求触发风控
+- **token 自动去首尾空白**: 避免青龙面板复制 token 误带空格导致 header 非法
+- **不管成功失败都发通知**: 只要配置了 webhook / PushPlus, 都会发送结果
 
 ## API 流程 (与 JS 脚本对照)
 
