@@ -1,8 +1,9 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
+cron: 30 0 * * *
+new Env("CITYBOX魔盒签到翻卡")
 CITYBOX 魔盒 微信小程序签到 - Python 版本
-
 详细文档见 citybox/README.md
 依赖: pip install requests
 """
