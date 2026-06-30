@@ -3,78 +3,8 @@
 """
 CITYBOX 魔盒 微信小程序签到 - Python 版本
 
-由以下两个 GitHub JavaScript 脚本合并转换而来:
-  1. FboZhu/QX/js/MH_CityBox.js          (https://github.com/FboZhu/QX)
-  2. axtyet/Luminous/.../citybox.js       (https://github.com/axtyet/Luminous)
-
-================================================================
-登录信息是怎么传入的 (关键说明)
-================================================================
-CityBox (CITYBOX 魔盒) 是微信小程序, 登录态完全靠 HTTP 请求头里的两个字段:
-  - `token`:  用户身份令牌 (必填)
-  - `sign` :  API 签名      (脚本1 必填; 脚本2 因整体复用 HAR headers 不显式区分)
-
-获取方式 (抓包):
-  1. 用 Charles / Fiddler / Stream / Proxyman 等工具代理手机流量
-  2. 打开 CITYBOX 魔盒小程序, 触发任意请求 (例如打开"我的"页面会调 get_user_info)
-  3. 在抓到的任一请求 https://api.icitybox.cn/api/... 的请求头里复制:
-       token: xxxx
-       sign : xxxx        # 部分版本接口需要
-  4. 把这两个值填到 config.json / 环境变量 / 命令行参数
-
-================================================================
-使用方式
-================================================================
-方式 A: 配置文件 (推荐, 支持多账号)
-    python sign.py --config config.json
-
-方式 B: 环境变量 (适合 cron / Docker, 推荐用编号方式)
-    # 编号方式 (推荐, 无需写 JSON, 允许跳号临时禁用某账号)
-    set CITYBOX_ACCOUNTS_TOKEN1=xxx
-    set CITYBOX_ACCOUNTS_SIGN1=yyy
-    set CITYBOX_ACCOUNTS_REMARK1=主号
-    # 跳过 1 只用 2 也可以 (1 被临时禁用)
-    set CITYBOX_ACCOUNTS_TOKEN2=aaa
-    set CITYBOX_ACCOUNTS_SIGN2=bbb
-    set CITYBOX_ACCOUNTS_REMARK2=小号
-    python sign.py
-
-    # 或 JSON 数组方式 (兼容旧版)
-    set CITYBOX_ACCOUNTS=[{"token":"xxx","sign":"yyy","remark":"main"}]
-    python sign.py
-
-方式 C: 命令行单账号
-    python sign.py --token xxxx --sign yyyy
-
-================================================================
-通知 (可选, 命令行参数和环境变量二选一, 命令行优先)
-================================================================
-通用 webhook:
-    python sign.py --config config.json --webhook https://your.webhook/url
-    # 或
-    set SIGNHUB_WEBHOOK_URL=https://your.webhook/url
-    python sign.py --config config.json
-
-PushPlus 一对多群组推送 (参考 https://pushplus.plus/doc/guide/api.html):
-    # 仅发给自己
-    python sign.py --config config.json --pp-token <你的pushplus_token>
-
-    # 发给指定群组 (一对多)
-    python sign.py --config config.json --pp-token <token> --pp-topic <群组编码>
-
-    # 用 markdown 模板
-    python sign.py --config config.json --pp-token <token> --pp-topic <群组编码> --pp-template markdown
-
-    # 也可以全部用环境变量 (适合 cron / Docker)
-    set SIGNHUB_PUSHPLUS_TOKEN=<token>
-    set SIGNHUB_PUSHPLUS_TOPIC=<群组编码>
-    set SIGNHUB_PUSHPLUS_TEMPLATE=markdown
-    python sign.py --config config.json
-
-================================================================
-依赖
-================================================================
-    pip install requests
+详细文档见 citybox/README.md
+依赖: pip install requests
 """
 
 from __future__ import annotations
