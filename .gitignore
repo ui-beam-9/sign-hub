@@ -5,6 +5,7 @@ config.json
 agents_chat/
 tasks.md
 .workbuddy/
+skills/
 
 # Python
 __pycache__/
