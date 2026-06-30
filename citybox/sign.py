@@ -286,6 +286,14 @@ class CityBoxClient:
             sign_resp = self.sign()
             result.sign_msg = self._fmt_sign(sign_resp)
             self.log(f"  [{remark}] 签到: {result.sign_msg}")
+
+            # 2.1 检测是否已签到过 (已签到则跳过抽奖, 继续下一个账号)
+            if self._is_already_signed(sign_resp):
+                self.log(f"  [{remark}] 今日已签到, 跳过抽奖")
+                result.draw_msgs.append("已签到, 跳过抽奖")
+                result.user_info_after = result.user_info_before
+                return result
+
             self._sleep_random()
 
             # 3. 抽奖 x2 (随机不重复 click_num, 对应脚本1)
@@ -333,6 +341,23 @@ class CityBoxClient:
             # status 为 False 且无用户标识字段, 也视为认证无效
             data = d.get("data") if isinstance(d.get("data"), dict) else d
             if d.get("id") is None and data.get("id") is None and data.get("modou") is None:
+                return True
+        return False
+
+    @classmethod
+    def _is_already_signed(cls, d: dict[str, Any]) -> bool:
+        """检测签到响应是否表明今日已签到过。
+
+        判断依据: status 为 False 且 message 含"已签到/重复/今天已"等关键词。
+        (已签到时服务端通常返回 status=False + 提示语)
+        """
+        if d.get("status") is False:
+            msg = (cls._msg(d) or "").lower()
+            signed_keywords = [
+                "已签到", "已签", "今天已", "今日已", "重复签到", "已经签",
+                "signed", "already", "repeat", "duplicate",
+            ]
+            if any(kw.lower() in msg for kw in signed_keywords):
                 return True
         return False
 
