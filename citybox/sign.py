@@ -269,9 +269,15 @@ class CityBoxClient:
         remark = self.account.remark or self.account.token[:8]
         result = AccountResult(remark=remark)
         try:
+            # 0. 先检测认证是否有效 (无效则直接返回, 不浪费后续请求)
+            info_check = self.get_user_info()
+            if self._is_auth_invalid(info_check):
+                result.error = f"账户认证无效: {self._msg(info_check) or 'token/sign 已失效, 请重新抓包'}"
+                self.log(f"  [{remark}] {result.error}")
+                return result
+
             # 1. 签到前积分
-            info_before = self.get_user_info()
-            result.user_info_before = self._fmt_points(info_before, "查询失败")
+            result.user_info_before = self._fmt_points(info_check, "查询失败")
             self.log(f"  [{remark}] 签到前: {result.user_info_before}")
             self._sleep_random()
 
@@ -305,6 +311,29 @@ class CityBoxClient:
     @staticmethod
     def _msg(d: dict[str, Any]) -> str:
         return d.get("message") or d.get("msg") or ""
+
+    @classmethod
+    def _is_auth_invalid(cls, d: dict[str, Any]) -> bool:
+        """检测响应是否表明认证失效 (token/sign 无效或过期)。
+
+        判断依据 (满足任一即视为认证无效):
+          1. status 为 False 且 message 含认证失败关键词
+          2. status 为 False 且响应中无 id / modou 等用户字段
+        """
+        if d.get("status") is False:
+            msg = (cls._msg(d) or "").lower()
+            # 常见的认证失败关键词
+            auth_keywords = [
+                "token", "登录", "登陆", "无效", "过期", "未授权",
+                "unauthorized", "expire", "login", "请先", "身份",
+            ]
+            if any(kw in msg for kw in auth_keywords):
+                return True
+            # status 为 False 且无用户标识字段, 也视为认证无效
+            data = d.get("data") if isinstance(d.get("data"), dict) else d
+            if d.get("id") is None and data.get("id") is None and data.get("modou") is None:
+                return True
+        return False
 
     @classmethod
     def _fmt_points(cls, d: dict[str, Any], fail_text: str) -> str:
