@@ -372,10 +372,14 @@ class CityBoxClient:
 # 配置加载
 # ---------------------------------------------------------------------------
 def _validate_credential(name: str, value: str, account_label: str) -> str:
-    """校验 token / sign 是否合法 (非空 + 纯 ASCII)。
+    """校验 token / sign 是否合法 (非空 + 纯 ASCII + 去除首尾空白)。
     requests 用 latin-1 编码 HTTP header, 含中文等非 ASCII 字符会直接抛错,
-    这里提前给出友好提示。
+    这里提前给出友好提示。同时去除首尾空白, 避免复制 token 时误带空格。
     """
+    if not value:
+        return value
+    # 去除首尾空白 (避免青龙/配置文件复制时误带空格导致 header 非法)
+    value = value.strip()
     if not value:
         return value
     try:
